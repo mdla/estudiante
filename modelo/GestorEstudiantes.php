@@ -132,7 +132,7 @@ class GestorEstudiantes {
   }
 
   public function borrarEstudiante($dni) {
-    $recurso = $this->getConexion()->prepare("DELETE FROM `" . $this->getTable() . "` WHERE (usuario  = :dni)");
+    $recurso = $this->getConexion()->prepare("DELETE FROM `" . $this->getTable() . "` WHERE (`dni`  = :dni)");
     $datos = array(
         "dni" => $dni
     );
