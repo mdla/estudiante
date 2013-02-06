@@ -6,7 +6,7 @@ class Estudiante {
     private $apellido;
     private $nac;
 
-    public function __construct($dni,$nombre,$apellido,$fecha) {
+    public function __construct($dni="",$nombre="",$apellido="",$fecha="") {
         $this->dni=$dni;
         $this->nombre=$nombre;
         $this->apellido=$apellido;

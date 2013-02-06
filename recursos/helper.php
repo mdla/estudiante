@@ -14,5 +14,13 @@ function cargarVista($path) {
     include "../vista/$path";
     include "../vista/footer.php";
     }
+function listarEstudiantes() {
+  $gestor = new GestorEstudiantes();
+  return $gestor->listarEstudiantes();
+}
 
+function obtenerEstudiante($dni) {
+  $gestor=new GestorEstudiantes();
+  return $gestor->obtenerEstudiante($dni);
+}
 ?>

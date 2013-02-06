@@ -1,27 +1,69 @@
 <?php
+
 include_once 'Estudiante.php';
 
 class GestorEstudiantes {
-private $host; //= "localhost";
-  private $pass; //= "";
-  private $user; //= "root";
-  private $db; //= "primera";
-  private $table; //= "estudiante";
+
   private $pathConfiguracion = "http://localhost/estudiante/recursos/config.txt";
+  private $conexion;
+  private $conf = array();
 
   public function __construct() {
-
     $this->cargarConfiguracion();
-    //$this->imprimir();
-    $con = mysql_connect($this->host, $this->user, $this->pass);
+    $dns = "mysql:host=" . $this->getHost() . ";dbname=" . $this->getDb();
+    try {
+      $this->setConexion(new PDO($dns, $this->getUser(), $this->getPass()));
+      $con = new PDO($dns, $this->getUser(), $this->getPass());
+      $r = $con->prepare($dns);
+      //$r->bindValue($r, $con, $data_type)
+//      $r->execute($input_parameters);
+//      $r->errorInfo()
+    } catch (PDOException $e) {
+      echo "Ocurrio este error al conectarse la base de datos -> " . $e->getMessage();
+      die();
+    }
+  }
+  
 
-    if (!$con)
-      die("no pude conectarme ---" . mysql_error());
+//  private function imprimir() {
+//    echo $this->host . "<br />";
+//    var_dump($this->pass);
+//    echo "<br />";
+//    echo $this->user . "<br />";
+//    echo $this->table . "<br />";
+//    echo $this->db . "<br />";
+//  }
 
+  private function getConexion() {
+    return $this->conexion;
+  }
 
+  private function getHost() {
+    return $this->conf["host"];
+  }
 
-    if (!mysql_select_db($this->db))
-      die("la base no existe ----" . mysql_error());
+  private function getPass() {
+    return $this->conf["pass"];
+  }
+
+  private function getUser() {
+    return $this->conf["user"];
+  }
+
+  private function getDb() {
+    return $this->conf["db"];
+  }
+
+  private function getTable() {
+    return $this->conf["table"];
+  }
+
+  private function getPathConfiguracion() {
+    return $this->pathConfiguracion;
+  }
+
+  private function setConexion($conexion) {
+    $this->conexion = $conexion;
   }
 
   private function imprimir() {
@@ -37,66 +79,67 @@ private $host; //= "localhost";
     $puntero = fopen($this->pathConfiguracion, "r");
     while (!feof($puntero)) {
       $campos = explode("=", fgets($puntero));
-      $this->asignaCampos($campos);
+      $this->conf[$campos[0]] = (isset($campos[1])) ? trim($campos[1]) : "";
     }
     fclose($puntero);
   }
 
-  private function asignaCampos($arreglo) {
-    switch ($arreglo[0]) {
-      case "host":
-        $this->host = trim($arreglo[1]);
-        break;
-      case "pass":
-
-        if (strlen(trim($arreglo[1])) != 0)
-          $this->pass = trim($arreglo[1]);
-
-        else
-          $this->pass = '';
-        break;
-      case "user":
-        $this->user = trim($arreglo[1]);
-        break;
-      case "db":
-        $this->db = trim($arreglo[1]);
-        break;
-      case "table":
-        $this->table = trim($arreglo[1]);
-        break;
-    }
-  }
-
   public function listarEstudiantes() {
     $res = array();
-    $query = mysql_query("SELECT * FROM `$this->table`");
-    while ($row = mysql_fetch_object($query)):
+    $recurso = $this->getConexion()->prepare('SELECT * FROM ' . $this->getTable());
+    if (!$recurso->execute()) {
+      echo "NO SE PUDO REALIZAR LA CONSULTA :" . errorInfo()[2];
+      die();
+    }
+    foreach ($recurso->fetchAll(PDO::FETCH_OBJ) as $row) {
       $res[] = new Estudiante($row->dni, $row->nombre, $row->apellido, $row->fecha);
-    endwhile;
+    }
     return $res;
   }
-  
-  public function obtenerUsuario($id) {
-    $query = mysql_query("SELECT * FROM `$this->table` WHERE `dni`='$id'");
-    $res = mysql_fetch_object($query);
-    return new Estudiante($res->dni,$res->nombre,$res->apellido,$res->fecha);
+
+  public function obtenerEstudiante($dni) {
+    $recurso = $this->getConexion()->prepare("SELECT * FROM " . $this->getTable() . " WHERE `dni` = :dni");
+    $datos = array(
+        "dni" => $dni
+    );
+    $recurso->execute($datos);
+    $res = $recurso->fetch(PDO::FETCH_OBJ);
+    return new Estudiante($res->dni, $res->nombre, $res->apellido, $res->fecha);
   }
-  
 
   public function agregarEstudiante(Estudiante $estudiante) {
-    return mysql_query("INSERT INTO `$this->table` VALUES ('$estudiante->getDni()','$estudiante->getNombre()')");
+    $recurso = $this->getConexion()->prepare("INSERT INTO `" . $this->getTable() . "` VALUES (:dni, :nombre, :apellido, :fecha)");
+    $datos = array(
+        "dni" => $estudiante->getDni(),
+        "nombre" => $estudiante->getNombre(),
+        "apellido" => $estudiante->getApellido(),
+        "fecha" => $estudiante->getFechaNac(),
+    );
+    $recurso->execute($datos);
+    return ($recurso->rowCount() == 1) ? TRUE : FALSE;
   }
 
-  public function modificarUsuario($usuario, $pass) {
-    if(mysql_query("UPDATE `$this->table` SET `pass`='$pass' WHERE  `usuario` = '$usuario'"))
-    return "modificado";
-    else
-      return mysql_error();
+  public function modificarEstudiante(Estudiante $estudiante) {
+    $recurso = $this->getConexion()->prepare("UPDATE `" . $this->getTable() . "` SET `nombre` = :nombre , `apellido` = :apellido , `fecha` =:fecha WHERE `dni` = :dni");
+    $datos = array(
+        "nombre" => $estudiante->getNombre(),
+        "apellido" => $estudiante->getApellido(),
+        "fecha" => $estudiante->getFechaNac(),
+        "dni" => $estudiante->getDni()
+    );
+    $recurso->execute($datos);
+    return ($recurso->rowCount()==1)?TRUE:FALSE;
   }
 
-  public function borrarUsuario($usuario) {
-    return mysql_query("DELETE FROM `$this->table` WHERE ('$usuario' = `usuario`)");
+  public function borrarEstudiante($dni) {
+    $recurso = $this->getConexion()->prepare("DELETE FROM `" . $this->getTable() . "` WHERE (usuario  = :dni)");
+    $datos = array(
+        "dni" => $dni
+    );
+    $recurso->execute($datos);
+    return ($recurso->rowCount() == 1) ? TRUE : FALSE;
   }
+
 }
 
 ?>
