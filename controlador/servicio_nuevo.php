@@ -21,8 +21,6 @@ else {
   $direc = new Direccionador();
 
   $r=$gestor->agregarEstudiante($est);
-  var_dump($r);
-  die();
   $direc->direccionarA($pathMostrar);
 }
 ?>

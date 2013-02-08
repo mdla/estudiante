@@ -8,14 +8,15 @@
   ?>
   <fieldset>
     <legend>Cambiar contraseña</legend>
-    <label for="usuario">Usuario</label>
+    <label for="usuario">Estudiante</label>
 
-    <input type="text" name="dni" id="dni" value="<?php echo $est->getDni(); ?>"/>
+    <input type="hidden" class="hidden" name="dni" id="dni" value="<?php echo $est->getDni(); ?>"/>
     <label for="nombre">Nombre: </label>
     <input type="text" name="nombre" id="nombre" maxlength="30"  size=30 required="required" value="<?php echo $est->getNombre(); ?>"/>
     <label for="apellido">Apellido: </label>
     <input type="text" name="apellido" id="apellido" maxlength="30"  size=30 value="<?php echo $est->getApellido(); ?>"/>
-    <label for="fecha">fecha: </label><input type="date" name="fecha" id="fecha" size=28 value="<?php echo $est->getFechaNac(); ?>"/>
+    <label for="fecha">fecha: </label>
+    <input type="date" name="fecha" id="fecha" size=28 value="<?php echo $est->getFechaNac(); ?>"/>
   </fieldset>
   <button type="submit" class="btn btn-primary">Enviar</button>
 </form>
