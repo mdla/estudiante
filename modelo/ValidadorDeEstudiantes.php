@@ -2,37 +2,84 @@
 
 class ValidadorDeEstudiantes {
 
-    private $estado = TRUE;
-    private $error = "";
-    private $est;
+  private $est;
 
-    public function __construct(Estudiante $estudiante) {
-        $this->est = $estudiante;
-    }
+  public function __construct(Estudiante $estudiante) {
+    $this->est = $estudiante;
+  }
 
-    public function existeEstudiante(Estudiante $estudiante) {
-        
-    }
+  public function validar() {
+    $resDni = $this->comprobarDni();
+    if ($resDni !== TRUE)
+      return $resDni;
 
-    public function comprobarFecha() {
-        //RANGO DE FECHA MAXIMAS
-        // AÑO = ACTUAL
-        // MES = 12
-        // DIA =31
-        $rangos = array(intval(date("Y")), 12, 31);
+    if ($this->existeEstudiante())
+      return "El estudiante ya existe";
 
-        $fecha = explode("-", $this->getEst()->getFechaNac();
-        
-        foreach (explode("-", $fecha) as $key => $value) {
-            if (is_numeric($value) && intval($value) > 0):
+    $resFecha = $this->comprobarFecha();
+    if ($resFecha !== TRUE)
+      return $resFecha;
 
-            endif;
-        }
-    }
+    $resNombre = $this->comprobarCadena($this->getEst()->getNombre(), "Nombre");
+    if ($resNombre !== TRUE)
+      return $resNombre;
 
-    public function getEst() {
-        return $this->est;
-    }
+    $resApellido = $this->comprobarCadena($this->getEst()->getNombre(), "Apellido");
+    if ($resApellido !== TRUE)
+      return $resApellido;
+    
+    return TRUE;
+  }
+
+  private function existeEstudiante() {
+    $admin = new GestorEstudiantes();
+    $dni = $this->getEst()->getDni();
+    if (empty($admin->obtenerEstudiante($dni)->getDni()))
+      return FALSE;
+    else
+      return TRUE;
+  }
+
+  private function comprobarFecha() {
+    $fecha = explode("-", $this->getEst()->getFechaNac());
+    if (checkdate($fecha[1], $fecha[2], $fecha[0]))
+      return "Esa fecha no existe";
+    if (is_numeric($fecha[0]) && intval($fecha) < 1900)
+      return "fecha ilogica: año menor a 1900";
+    //PASO LA FECHA A INTEGER PARA COMPARAR
+    $hoy = intval(date("Ymd"));
+    if (intval(date("Ymd", mktime(0, 0, 0, $fecha[1], $fecha[2], $fecha[0]))) > $hoy)
+      return "Fecha superior a la de hoy";
+    //Fin de las validaciones
+    return TRUE;
+  }
+
+  private function comprobarDni() {
+    $dni=$this->getEst()->getDni();
+    if(empty($dni))
+      return "DNI vacio";
+    if (!is_numeric($dni))
+      return "DNI no numerico";
+    if (intval($dni) > 0)
+      return "DNI negativo";
+    return TRUE;
+  }
+
+  private function comprobarCadena($cadena, $campo) {
+    if (strlen($cadena) == 0)
+      return "Campo vacio";
+    //Vefico que no haya caracteres extraños
+    $pattern = '/[^a-zñÑ\s]/i';
+    if (preg_match_all($pattern, $cadena) > 0)
+      return "Caracteres ilegales en el $campo";
+    if (strlen($cadena) <= 30)
+      return "Superado el maximo permitido de caracteres en el campo: $campo ";
+    return TRUE;
+  }
+
+  private function getEst() {
+    return $this->est;
+  }
 
 }
 
