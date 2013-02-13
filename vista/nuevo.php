@@ -1,4 +1,4 @@
-<article class="row-fluid">
+<article class="ui-state-error">
   <div id="error">
     <?php
     if (isset($error))
@@ -14,7 +14,6 @@
     <label for="apellido">Apellido </label>
     <input type="text" name="apellido" id="apellido" maxlength="30"  size=30 value="<?php if (isset($apellido)) echo $apellido; ?>"/>
     <label for="fecha">Fecha de Nacimiento </label><input type="text" name="fecha" id="datepicker" size=28 value="<?php if (isset($fecha)) echo $fecha; else echo ''; ?>"/>
-    <label for="fecha2">Fecha</label><input type="date" name="fecha2" />
     <br /> 
     <br /> 
     <button type="submit" class="btn btn-primary" >Enviar</button>    
