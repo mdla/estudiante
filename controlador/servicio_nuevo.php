@@ -11,10 +11,10 @@ $pathNuevo = "/nuevo.php";
 if ($_SERVER["REQUEST_METHOD"] != "POST")
   cargarVista($pathNuevo);
 else {
-  $dni = $_POST["dni"];
-  $apellido = $_POST["apellido"];
-  $nombre = $_POST["nombre"];
-  $fecha = $_POST["fecha"];
+  $dni = trim($_POST["dni"]);
+  $apellido = ucwords(trim($_POST["apellido"]));
+  $nombre = ucwords(trim($_POST["nombre"]));
+  $fecha = trim($_POST["fecha"]);
   
 
   $est = new Estudiante($dni, $nombre, $apellido, $fecha);

@@ -34,14 +34,18 @@ class ValidadorDeEstudiantes {
   private function existeEstudiante() {
     $admin = new GestorEstudiantes();
     $dni = $this->getEst()->getDni();
-    if (empty($admin->obtenerEstudiante($dni)->getDni()))
+    $res=$admin->obtenerEstudiante($dni);
+    if (empty($res))
       return FALSE;
     else
       return TRUE;
   }
 
   private function comprobarFecha() {
-    $fecha = explode("-", $this->getEst()->getFechaNac());
+    $nacio=$this->getEst()->getFechaNac();
+    if(empty($nacio))
+      return "Campo de Fecha de nacimiento vacio";
+    $fecha = explode("-", $nacio);
     if (checkdate($fecha[1], $fecha[2], $fecha[0]))
       return "Esa fecha no existe";
     if (is_numeric($fecha[0]) && intval($fecha) < 1900)
