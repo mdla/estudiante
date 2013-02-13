@@ -14,7 +14,10 @@
           minDate:"-80Y",
           maxDate:0,
           changeMonth: true,
-          changeYear: true});
+          changeYear: true,
+          monthNames: [ "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" ],
+          monthNamesShort: [ "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Agos", "Sep", "Oct", "Nov", "Dic" ]
+        });
       });
       
   

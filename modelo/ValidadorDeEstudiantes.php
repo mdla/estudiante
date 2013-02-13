@@ -46,9 +46,9 @@ class ValidadorDeEstudiantes {
     if(empty($nacio))
       return "Campo de Fecha de nacimiento vacio";
     $fecha = explode("-", $nacio);
-    if (checkdate($fecha[1], $fecha[2], $fecha[0]))
+    if (!checkdate(intval($fecha[1]), intval($fecha[2]), intval($fecha[0])))
       return "Esa fecha no existe";
-    if (is_numeric($fecha[0]) && intval($fecha) < 1900)
+    if (!is_numeric($fecha[0]) && intval($fecha) < 1900)
       return "fecha ilogica: año menor a 1900";
     //PASO LA FECHA A INTEGER PARA COMPARAR
     $hoy = intval(date("Ymd"));
@@ -64,7 +64,7 @@ class ValidadorDeEstudiantes {
       return "DNI vacio";
     if (!is_numeric($dni))
       return "DNI no numerico";
-    if (intval($dni) > 0)
+    if (intval($dni) <= 0)
       return "DNI negativo";
     return TRUE;
   }
@@ -76,7 +76,7 @@ class ValidadorDeEstudiantes {
     $pattern = '/[^a-zñÑ\s]/i';
     if (preg_match_all($pattern, $cadena) > 0)
       return "Caracteres ilegales en el $campo";
-    if (strlen($cadena) <= 30)
+    if (strlen($cadena) >= 30)
       return "Superado el maximo permitido de caracteres en el campo: $campo ";
     return TRUE;
   }
